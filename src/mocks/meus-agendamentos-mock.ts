@@ -1,0 +1,109 @@
+export type ReservationType = 'mesa' | 'sala'
+
+export interface MeusAgendamentosReservation {
+  id: number
+  reservationName: string
+  type: ReservationType
+  date: string
+  startTime: string
+  endTime: string
+}
+
+export const meusAgendamentosMock: MeusAgendamentosReservation[] = [
+  {
+    id: 1,
+    reservationName: 'Mesa 1',
+    type: 'mesa',
+    date: '15/05/2025',
+    startTime: '09:00',
+    endTime: '10:00',
+  },
+  {
+    id: 2,
+    reservationName: 'Mesa 2',
+    type: 'mesa',
+    date: '15/05/2025',
+    startTime: '10:00',
+    endTime: '11:00',
+  },
+  {
+    id: 3,
+    reservationName: 'Mesa 3',
+    type: 'mesa',
+    date: '15/05/2025',
+    startTime: '11:00',
+    endTime: '12:00',
+  },
+  {
+    id: 4,
+    reservationName: 'L-101',
+    type: 'sala',
+    date: '16/05/2025',
+    startTime: '08:00',
+    endTime: '10:00',
+  },
+  {
+    id: 5,
+    reservationName: 'L-102',
+    type: 'sala',
+    date: '16/05/2025',
+    startTime: '10:00',
+    endTime: '12:00',
+  },
+  {
+    id: 6,
+    reservationName: 'L-103',
+    type: 'sala',
+    date: '16/05/2025',
+    startTime: '13:00',
+    endTime: '15:00',
+  },
+  {
+    id: 7,
+    reservationName: 'Mesa 4',
+    type: 'mesa',
+    date: '17/05/2025',
+    startTime: '09:00',
+    endTime: '11:00',
+  },
+  {
+    id: 8,
+    reservationName: 'Mesa 5',
+    type: 'mesa',
+    date: '17/05/2025',
+    startTime: '11:00',
+    endTime: '13:00',
+  },
+  {
+    id: 9,
+    reservationName: 'Mesa 6',
+    type: 'mesa',
+    date: '17/05/2025',
+    startTime: '14:00',
+    endTime: '15:00',
+  },
+  {
+    id: 10,
+    reservationName: 'L-104',
+    type: 'sala',
+    date: '18/05/2025',
+    startTime: '09:00',
+    endTime: '11:00',
+  },
+  {
+    id: 11,
+    reservationName: 'L-105',
+    type: 'sala',
+    date: '18/05/2025',
+    startTime: '11:00',
+    endTime: '13:00',
+  },
+  {
+    id: 12,
+    reservationName: 'L-106',
+    type: 'sala',
+    date: '18/05/2025',
+    startTime: '14:00',
+    endTime: '16:00',
+  },
+]
