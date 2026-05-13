@@ -1,62 +1,63 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import * as v from 'valibot'
 import { TextInput } from '../Input/text-input'
 import { PasswordInput } from '../Input/password-input'
 import { Button } from '../Button/button'
-
-const loginSchema = v.object({
-  identifier: v.pipe(v.string(), v.minLength(3, 'Credenciais inválidas')),
-  password: v.pipe(v.string(), v.minLength(5, 'Credenciais inválidas')),
-})
-
-type LoginFormErrors = {
-  identifier?: string
-  password?: string
-}
+import { ButtonSpinner } from '../ButtonSpinner/button-spinner'
+import {
+  validateLoginForm,
+  type LoginFormErrors,
+} from '../../utils/login-validation'
 
 export function LoginForm() {
   const navigate = useNavigate()
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<LoginFormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const hasErrors = useMemo(
-    () => Boolean(errors.identifier || errors.password),
-    [errors]
-  )
-
-  const handleSubmit = (event?: React.FormEvent) => {
+  const handleSubmit = async (event?: React.FormEvent) => {
     event?.preventDefault()
 
-    const result = v.safeParse(loginSchema, {
-      identifier: identifier.trim(),
-      password: password.trim(),
-    })
+    const nextErrors = validateLoginForm({ identifier, password })
 
-    if (!result.success) {
-      setErrors({
-        identifier: 'Credenciais inválidas',
-        password: 'Credenciais inválidas',
-      })
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
       return
     }
 
-    setErrors({})
-    navigate('/agendar-mesa')
+    setIsSubmitting(true)
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      setErrors({})
+      navigate('/agendar-mesa')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleIdentifierChange = (value: string) => {
     setIdentifier(value)
-    if (hasErrors) {
-      setErrors({})
+
+    if (errors.identifier) {
+      setErrors((current) => {
+        const next = { ...current }
+        delete next.identifier
+        return next
+      })
     }
   }
 
   const handlePasswordChange = (value: string) => {
     setPassword(value)
-    if (hasErrors) {
-      setErrors({})
+
+    if (errors.password) {
+      setErrors((current) => {
+        const next = { ...current }
+        delete next.password
+        return next
+      })
     }
   }
 
@@ -69,6 +70,7 @@ export function LoginForm() {
             value={identifier}
             onChange={handleIdentifierChange}
             isObrigatorie
+            disabled={isSubmitting}
           />
           {errors.identifier && (
             <p
@@ -85,6 +87,7 @@ export function LoginForm() {
             label="Senha"
             value={password}
             onChange={handlePasswordChange}
+            disabled={isSubmitting}
           />
           {errors.password && (
             <p
@@ -96,8 +99,14 @@ export function LoginForm() {
           )}
         </div>
 
-        <Button variant="primary" size="large" type="submit">
-          Entrar
+        <Button
+          variant="primary"
+          size="large"
+          type="submit"
+          disabled={isSubmitting}
+          className="min-w-[120px]"
+        >
+          {isSubmitting ? <ButtonSpinner /> : 'Entrar'}
         </Button>
       </form>
     </section>

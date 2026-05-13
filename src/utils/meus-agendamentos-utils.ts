@@ -1,4 +1,4 @@
-import type { MeusAgendamentosReservation } from '../../../mocks/meus-agendamentos-mock'
+import type { MeusAgendamentosReservation } from '../mocks/meus-agendamentos-mock'
 
 export const formatTimeRange = (startTime: string, endTime: string): string => {
   const [startHour] = startTime.split(':')
@@ -9,11 +9,27 @@ export const formatTimeRange = (startTime: string, endTime: string): string => {
 export const sortReservationsByDate = (
   reservations: MeusAgendamentosReservation[]
 ): MeusAgendamentosReservation[] => {
+  const parseDate = (dateStr: string) => {
+    const [d, m, y] = dateStr.split('/')
+    return new Date(Number(y), Number(m) - 1, Number(d)).getTime()
+  }
+
+  const parseTimeMinutes = (timeStr: string) => {
+    if (!timeStr) return 0
+    const [h, min] = timeStr.split(':').map((n) => Number(n || 0))
+    return h * 60 + min
+  }
+
   return [...reservations].sort((a, b) => {
-    const [da, ma, ya] = a.date.split('/')
-    const [db, mb, yb] = b.date.split('/')
-    const daObj = new Date(Number(ya), Number(ma) - 1, Number(da))
-    const dbObj = new Date(Number(yb), Number(mb) - 1, Number(db))
-    return daObj.getTime() - dbObj.getTime()
+    const ta = parseDate(a.date)
+    const tb = parseDate(b.date)
+
+    // order by date DESC (mais recente primeiro)
+    if (tb !== ta) return tb - ta
+
+    // mesma data: ordernar pelo horário de início DESC (mais tarde primeiro)
+    const sa = parseTimeMinutes(a.startTime)
+    const sb = parseTimeMinutes(b.startTime)
+    return sb - sa
   })
 }

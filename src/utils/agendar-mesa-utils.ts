@@ -1,4 +1,4 @@
-import type { TableReservation } from '../../../mocks/agendar-mesa-mock'
+import type { TableReservation } from "../mocks/agendar-mesa-mock"
 
 export const getAvailableTablesBySide = (
   tables: TableReservation[],

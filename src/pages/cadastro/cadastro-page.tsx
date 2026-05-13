@@ -1,10 +1,22 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ALink } from '../../components/ALink/a-link'
+import { LoadingSpinner } from '../../components/LoadingSpinner/loading-spinner'
 import { CadastroForm } from '../../components/CadastroForm/cadastro-form'
 import LogoLogin from '../../assets/logo-login.svg'
 
 export function CadastroPage() {
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return <LoadingSpinner fullScreen message="Carregando cadastro..." />
+  }
 
   return (
     <div className="min-h-screen px-[32px] grid gap-8 lg:grid-cols-2">

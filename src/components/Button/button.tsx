@@ -10,6 +10,7 @@ interface ButtonProps {
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
+  className?: string
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -42,6 +43,7 @@ export function Button({
   onClick,
   type = 'button',
   disabled = false,
+  className = '',
 }: ButtonProps) {
   return (
     <button
@@ -56,6 +58,7 @@ export function Button({
         !disabled ? 'cursor-pointer' : '',
         sizeStyles[size],
         variantStyles[variant],
+        className,
       ].join(' ')}
     >
       {children}

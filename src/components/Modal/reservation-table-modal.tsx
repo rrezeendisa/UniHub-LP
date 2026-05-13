@@ -1,23 +1,20 @@
-import { useCallback, useMemo, useState } from 'react'
 import { Modal } from './modal'
 import { TextInput } from '../Input/text-input'
 import { Calendar } from '../Calendar/calendar'
 import { Select } from '../Select/select'
 import { SelectItem } from '../Select/select-item'
 import { Button } from '../Button/button'
+import { ButtonSpinner } from '../ButtonSpinner/button-spinner'
+import {
+  useReservationTableForm,
+  type ReservationData,
+} from '../../hooks/useReservationTableForm'
 
-interface ReservationData {
-  name: string
-  date: Date | null
-  time: string
-}
-
-interface ReservationRoomModalProps {
+interface ReservationTableModalProps {
   isOpen: boolean
   onClose: () => void
   tableName: string
   onSubmit: (data: ReservationData) => void | Promise<void>
-  isLoading?: boolean
   availableTimes?: string[]
 }
 
@@ -26,7 +23,6 @@ export function ReservationTableModal({
   onClose,
   tableName,
   onSubmit,
-  isLoading = false,
   availableTimes = [
     '08:00',
     '09:00',
@@ -37,41 +33,22 @@ export function ReservationTableModal({
     '15:00',
     '16:00',
   ],
-}: ReservationRoomModalProps) {
-  const [name, setName] = useState('')
-  const [date, setDate] = useState<Date | null>(null)
-  const [time, setTime] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const isBusy = isLoading || isSubmitting
-  const canSubmit = !!name && !!date && !!time && !isBusy
-
-  const clearForm = useCallback(() => {
-    setName('')
-    setDate(null)
-    setTime('')
-  }, [])
-
-  const handleSubmit = useCallback(
-    async (e?: React.SyntheticEvent) => {
-      e?.preventDefault()
-      if (!canSubmit) return
-
-      try {
-        setIsSubmitting(true)
-        await Promise.resolve(onSubmit({ name, date, time }))
-        clearForm()
-      } finally {
-        setIsSubmitting(false)
-      }
-    },
-    [canSubmit, onSubmit, name, date, time, clearForm]
-  )
-
-  const buttonLabel = useMemo(
-    () => (isBusy ? 'Enviando...' : 'Reservar mesa'),
-    [isBusy]
-  )
+}: ReservationTableModalProps) {
+  const {
+    name,
+    setName,
+    date,
+    setDate,
+    time,
+    setTime,
+    isSubmitting,
+    canSubmit,
+    handleSubmit,
+  } = useReservationTableForm({
+    isOpen,
+    onClose,
+    onSubmit,
+  })
 
   return (
     <Modal
@@ -85,31 +62,49 @@ export function ReservationTableModal({
       onClose={onClose}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <TextInput label="Nome" value={name} onChange={setName}  isObrigatorie/>
-        <div>
-          <Calendar selected={date} onChange={setDate} label="Data" isObrigatorie />
-        </div>
-        <Select
-          label="Horário"
-          value={time}
-          onChange={setTime}
-          placeholder="Selecione um horário"
+        <TextInput
+          label="Nome"
+          value={name}
+          onChange={setName}
           isObrigatorie
-        >
-          {availableTimes.map((t) => (
-            <SelectItem key={t} value={t}>
-              {t}
-            </SelectItem>
-          ))}
-        </Select>
+          disabled={isSubmitting}
+        />
+
+        <div>
+          <Calendar
+            selected={date}
+            onChange={setDate}
+            label="Data"
+            isObrigatorie
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div className={isSubmitting ? 'pointer-events-none opacity-60' : ''}>
+          <Select
+            label="Horário"
+            value={time}
+            onChange={setTime}
+            placeholder="Selecione um horário"
+            isObrigatorie
+          >
+            {availableTimes.map((t) => (
+              <SelectItem key={t} value={t}>
+                {t}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
         <div className="flex justify-center">
           <Button
             variant="primary"
             size="large"
-            disabled={!canSubmit}
-            onClick={() => handleSubmit()}
+            type="submit"
+            disabled={!canSubmit || isSubmitting}
+            className="min-w-[160px]"
           >
-            {buttonLabel}
+            {isSubmitting ? <ButtonSpinner /> : 'Reservar mesa'}
           </Button>
         </div>
       </form>

@@ -1,94 +1,24 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import * as v from 'valibot'
 import { TextInput } from '../Input/text-input'
 import { PasswordInput } from '../Input/password-input'
 import { Button } from '../Button/button'
 import { Radio } from '../Radio/radio'
-
-const cadastroSchema = v.object({
-  role: v.picklist(['aluno', 'professor']),
-  ra: v.pipe(
-    v.string(),
-    v.minLength(1, 'Credenciais inválidas'),
-    v.regex(/^\d+$/, 'Credenciais inválidas')
-  ),
-  email: v.pipe(
-    v.string(),
-    v.minLength(1, 'Credenciais inválidas'),
-    v.regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Credenciais inválidas')
-  ),
-  password: v.pipe(v.string(), v.minLength(5, 'Credenciais inválidas')),
-  confirmPassword: v.pipe(v.string(), v.minLength(5, 'Credenciais inválidas')),
-})
-
-type CadastroFormErrors = {
-  role?: string
-  ra?: string
-  email?: string
-  password?: string
-  confirmPassword?: string
-}
+import { ButtonSpinner } from '../ButtonSpinner/button-spinner'
+import { useCadastroForm } from '../../hooks/useCadastroForm'
 
 export function CadastroForm() {
-  const navigate = useNavigate()
-  const [role, setRole] = useState<'aluno' | 'professor'>('aluno')
-  const [ra, setRa] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [errors, setErrors] = useState<CadastroFormErrors>({})
-
-  const hasErrors = useMemo(
-    () =>
-      Boolean(
-        errors.role ||
-        errors.ra ||
-        errors.email ||
-        errors.password ||
-        errors.confirmPassword
-      ),
-    [errors]
-  )
-
-  const handleSubmit = (event?: React.FormEvent) => {
-    event?.preventDefault()
-
-    const result = v.safeParse(cadastroSchema, {
-      role,
-      ra: ra.trim(),
-      email: email.trim(),
-      password: password.trim(),
-      confirmPassword: confirmPassword.trim(),
-    })
-
-    if (!result.success || password === null) {
-      setErrors({
-        role: 'Credenciais inválidas',
-        ra: 'Credenciais inválidas',
-        email: 'Credenciais inválidas',
-        password: 'Credenciais inválidas',
-        confirmPassword: 'Credenciais inválidas',
-      })
-
-      if (password !== confirmPassword) {
-        setErrors({
-          password: 'As senhas não coincidem',
-          confirmPassword: 'As senhas não coincidem',
-        })
-      }
-      return
-    }
-
-    setErrors({})
-    navigate('/login')
-  }
-
-  const clearErrorsIfNeeded = () => {
-    if (hasErrors) {
-      setErrors({})
-    }
-  }
+  const {
+    role,
+    setRole,
+    ra,
+    email,
+    password,
+    confirmPassword,
+    errors,
+    isSubmitting,
+    updateField,
+    submit,
+    clearErrors,
+  } = useCadastroForm()
 
   return (
     <section className="w-full rounded-lg bg-[var(--color-surface)] px-6 py-8 shadow-sm">
@@ -96,7 +26,13 @@ export function CadastroForm() {
         Cadastrar
       </h1>
 
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          void submit()
+        }}
+        className="mt-6 flex flex-col gap-4"
+      >
         <div className="flex justify-center gap-8">
           <Radio
             name="role"
@@ -105,7 +41,7 @@ export function CadastroForm() {
             checked={role === 'aluno'}
             onChange={() => {
               setRole('aluno')
-              clearErrorsIfNeeded()
+              clearErrors()
             }}
           />
           <Radio
@@ -115,7 +51,7 @@ export function CadastroForm() {
             checked={role === 'professor'}
             onChange={() => {
               setRole('professor')
-              clearErrorsIfNeeded()
+              clearErrors()
             }}
           />
         </div>
@@ -124,11 +60,9 @@ export function CadastroForm() {
           <TextInput
             label="RA"
             value={ra}
-            onChange={(value) => {
-              setRa(value)
-              clearErrorsIfNeeded()
-            }}
+            onChange={(value) => updateField('ra', value)}
             isObrigatorie
+            disabled={isSubmitting}
           />
           {errors.ra && (
             <p
@@ -144,11 +78,9 @@ export function CadastroForm() {
           <TextInput
             label="E-mail"
             value={email}
-            onChange={(value) => {
-              setEmail(value)
-              clearErrorsIfNeeded()
-            }}
+            onChange={(value) => updateField('email', value)}
             isObrigatorie
+            disabled={isSubmitting}
           />
           {errors.email && (
             <p
@@ -164,10 +96,8 @@ export function CadastroForm() {
           <PasswordInput
             label="Senha"
             value={password}
-            onChange={(value) => {
-              setPassword(value)
-              clearErrorsIfNeeded()
-            }}
+            onChange={(value) => updateField('password', value)}
+            disabled={isSubmitting}
           />
           {errors.password && (
             <p
@@ -183,10 +113,8 @@ export function CadastroForm() {
           <PasswordInput
             label="Confirmar senha"
             value={confirmPassword}
-            onChange={(value) => {
-              setConfirmPassword(value)
-              clearErrorsIfNeeded()
-            }}
+            onChange={(value) => updateField('confirmPassword', value)}
+            disabled={isSubmitting}
           />
           {errors.confirmPassword && (
             <p
@@ -199,8 +127,14 @@ export function CadastroForm() {
         </div>
 
         <div className="pt-2 flex justify-center">
-          <Button variant="primary" size="large" onClick={() => handleSubmit()}>
-            Cadastrar
+          <Button
+            variant="primary"
+            size="large"
+            type="submit"
+            disabled={isSubmitting}
+            className="min-w-[120px]"
+          >
+            {isSubmitting ? <ButtonSpinner /> : 'Cadastrar'}
           </Button>
         </div>
       </form>

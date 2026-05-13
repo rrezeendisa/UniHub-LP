@@ -7,10 +7,12 @@ export function PasswordInput({
   label,
   value,
   onChange,
+  disabled,
 }: {
   label: string
   value: string
   onChange: (value: string) => void
+  disabled?: boolean
 }) {
   const [show, setShow] = useState(false)
 
@@ -21,6 +23,7 @@ export function PasswordInput({
       value={value}
       onChange={onChange}
       type={show ? 'text' : 'password'}
+      disabled={disabled}
       rightElement={
         <span onClick={() => setShow(!show)}>
           {show ? <EyeIcon /> : <EyeSlashIcon />}

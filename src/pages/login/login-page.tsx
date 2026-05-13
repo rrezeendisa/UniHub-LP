@@ -1,10 +1,25 @@
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { ALink } from '../../components/ALink/a-link'
 import { LoginForm } from '../../components/LoginForm/login-form'
+import { LoadingSpinner } from '../../components/LoadingSpinner/loading-spinner'
 import LogoLogin from '../../assets/logo-login.svg'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return <LoadingSpinner fullScreen message="Carregando..." />
+  }
 
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">

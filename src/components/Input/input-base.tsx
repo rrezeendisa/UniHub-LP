@@ -8,6 +8,7 @@ interface InputBaseProps {
   leftIcon?: React.ReactNode
   rightElement?: React.ReactNode
   isObrigatorie?: boolean
+  disabled?: boolean
 }
 
 export function InputBase({
@@ -18,6 +19,7 @@ export function InputBase({
   leftIcon,
   rightElement,
   isObrigatorie = false,
+  disabled = false,
 }: InputBaseProps) {
   return (
     <div className="input-container">
@@ -32,10 +34,12 @@ export function InputBase({
         value={value}
         placeholder=" "
         onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
         className={[
           'input-field',
           leftIcon ? 'pl-10' : '',
           rightElement ? 'pr-10' : '',
+          disabled ? 'opacity-50 cursor-not-allowed' : '',
         ].join(' ')}
       />
 
